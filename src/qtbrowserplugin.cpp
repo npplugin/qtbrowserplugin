@@ -272,6 +272,10 @@ bool NPN_HasProperty(NPP npp, NPObject *obj, NPIdentifier propertyName)
 bool NPN_HasMethod(NPP npp, NPObject *obj, NPIdentifier methodName)
 {
     NPN_Prolog(hasmethod);
+
+    if (0 == methodName)
+        return false;
+
     return FIND_FUNCTION_POINTER(NPN_HasMethodFP, qNetscapeFuncs->hasmethod)(npp, obj, methodName);
 }
 
@@ -736,6 +740,10 @@ int QtSignalForwarder::qt_metacall(QMetaObject::Call call, int index, void **arg
                 break;
 
             const QMetaMethod method = metaObject->method(index);
+
+            if (0 == method.methodType())
+                break;
+
             Q_ASSERT(method.methodType() == QMetaMethod::Signal);
 
             QByteArray signalSignature = method.signature();

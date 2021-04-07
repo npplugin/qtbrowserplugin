@@ -176,6 +176,10 @@ Graph::~Graph()
 
 void Graph::setGraphStyle(GraphStyle style)
 {
+    if (style != Pie && style != Bar) {
+        return;
+    }
+
     if (pieTimer)
         killTimer(pieTimer);
 
