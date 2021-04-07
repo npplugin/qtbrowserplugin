@@ -158,7 +158,7 @@ Graph::Graph(QWidget *parent)
 
     statusbar = new QStatusBar(this);
 
-    setFocusPolicy(Qt::StrongFocus);
+    setFocusPolicy(Qt::NoFocus);
     setGraphStyle(Pie);
 
     QPalette pal = palette();
