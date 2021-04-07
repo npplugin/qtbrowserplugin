@@ -56,12 +56,15 @@ class Trivial : public QWidget
 
 public:
     Trivial(QWidget *parent = 0)
-        : QWidget(parent), m_input(NULL)
+        : QWidget(parent), m_input(NULL), m_input2(NULL)
     {
         m_text = QString::fromLatin1("hello world");
 
-        m_input = new QTextEdit("", this);
+        m_input = new QTextEdit("hello", this);
         m_input->setGeometry(10, 10, 150, 100);
+
+        m_input2 = new QTextEdit("hello", this);
+        m_input2->setGeometry(200, 10, 150, 100);
     }
 
     void mousePressEvent(QMouseEvent *)
@@ -111,6 +114,7 @@ protected:
 private:
     QString m_text;
     QTextEdit* m_input;
+    QTextEdit* m_input2;
 };
 
 #include "trivial.moc"
