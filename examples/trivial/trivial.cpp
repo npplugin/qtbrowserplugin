@@ -58,6 +58,7 @@ public:
     Trivial(QWidget *parent = 0)
         : QWidget(parent), m_input(NULL), m_input2(NULL)
     {
+        MY_LOG("");
         m_text = QString::fromLatin1("hello world");
 
         m_input = new QTextEdit("hello", this);

@@ -929,6 +929,7 @@ NPP_New(NPMIMEType pluginType,
     char* argv[],
     NPSavedData* /*saved*/)
 {
+    MY_LOG("");
     if (!instance)
 	return NPERR_INVALID_INSTANCE_ERROR;
 
@@ -963,6 +964,7 @@ NPP_New(NPMIMEType pluginType,
 extern "C" NPError
 NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 {
+    MY_LOG("");
     if (!instance || !instance->pdata)
 	return NPERR_INVALID_INSTANCE_ERROR;
 
@@ -1263,6 +1265,7 @@ enum NPNToolkitType
 #ifndef Q_WS_X11
 extern "C" NPError WINAPI NP_Initialize(NPNetscapeFuncs* pFuncs)
 {
+    MY_LOG("");
     if(!pFuncs)
         return NPERR_INVALID_FUNCTABLE_ERROR;
 
@@ -1279,6 +1282,7 @@ extern "C" NPError WINAPI NP_Initialize(NPNetscapeFuncs* pFuncs)
 #else
 extern "C" NPError WINAPI NP_Initialize(NPNetscapeFuncs* nFuncs, NPPluginFuncs* pFuncs)
 {
+    MY_LOG("");
     if(!nFuncs)
         return NPERR_INVALID_FUNCTABLE_ERROR;
 
@@ -1302,6 +1306,7 @@ extern "C" NPError WINAPI NP_Initialize(NPNetscapeFuncs* nFuncs, NPPluginFuncs* 
 
 extern "C" NPError WINAPI NP_Shutdown()
 {
+    MY_LOG("");
     delete qNP;
     qNP = 0;
 

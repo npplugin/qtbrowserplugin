@@ -175,4 +175,29 @@ QtNPFactory *qtns_instantiate() { return new QtNPClassList; } \
 #define QTNPFACTORY_EXPORT(Class) \
 QtNPFactory *qtns_instantiate() { return new Class; }
 
+
+// define MY_LOG
+#include <sstream>
+#ifdef Q_WS_WIN
+#include <windows.h>
+#define MY_LOG(msg) do {std::stringstream ss; ss << "[np_logs] " << __FUNCTION__ << ", " << __FILE__ << "(" << __LINE__ << "): " << msg; OutputDebugStringA(ss.str().c_str());} while(0)
+#else
+inline void qtnp_debuginfo(const QString &str)
+{
+    static bool inited = false;
+    QFile file("/tmp/qnsdebug.txt");
+    if (file.open(QFile::WriteOnly | QFile::Append)) {
+        if (!inited) {
+            file.write("\n\n*** New run started ***\n");
+            inited = true;
+        }
+        file.write(qtNPFactory()->pluginName().toLatin1() + ": " + str.toLatin1() + '\n');
+        file.close();
+    }
+}
+
+#define MY_LOG(msg) do {std::stringstream ss; ss << "[np_logs] " << __FUNCTION__ << ", " << __FILE__ << "(" << __LINE__ << "): " << msg; qtnp_debuginfo(ss.str().c_str());} while(0)
+
+#endif
+
 #endif // QTBROWSERPLUGIN_H
