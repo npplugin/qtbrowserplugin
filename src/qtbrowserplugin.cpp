@@ -990,6 +990,7 @@ static QtNPInstance *next_pi = 0; // helper to connect to QtNPBindable
 extern "C" NPError
 NPP_SetWindow(NPP instance, NPWindow* window)
 {
+    MY_LOG("");
     if (!instance)
 	return NPERR_INVALID_INSTANCE_ERROR;
 
