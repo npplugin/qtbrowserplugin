@@ -44,11 +44,16 @@
 #include "qtbrowserplugin_p.h"
 
 #include <windows.h>
+#include <windowsx.h>
 #include "qtnpapi.h"
 
 #if QT_VERSION >= 0x050000
 #define QT_WA(unicode, ansi) unicode
 #endif
+
+
+static LRESULT CALLBACK PluginWinProc(HWND, UINT, WPARAM, LPARAM);
+static WNDPROC lpOldProc = NULL;
 
 static HHOOK hhook = 0;
 static bool ownsqapp = false;
@@ -177,17 +182,38 @@ extern "C" void qtns_embed(QtNPInstance *This)
 {
     Q_ASSERT(qobject_cast<QWidget*>(This->qt.object));
 
+    HWND root = GetAncestor(This->window, GA_ROOT);
+    MY_LOG("root 0x%X, parent 0x%X, plugin 0x%X", root, This->window, This->qt.widget->winId());
+
+#if QT_VERSION >= 0x050000
+    This->qt.widget->setProperty("_q_embedded_native_parent_handle", QVariant::fromValue((void*)(root)));
+#endif
+
     LONG oldLong = GetWindowLong(This->window, GWL_STYLE);
     ::SetWindowLong(This->window, GWL_STYLE, oldLong | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
     ::SetWindowLong(This->qt.widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
     ::SetParent(This->qt.widget->winId(), This->window);
+
+    // subclass window
+    lpOldProc = SubclassWindow(This->qt.widget->winId(), (WNDPROC)PluginWinProc);
+
+    // create win32 edit
+    HWND hWnd = This->window;
+    RECT rc;
+    GetClientRect(hWnd, &rc);
+
+    CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"hello win32",
+        WS_VISIBLE | WS_CHILD | WS_BORDER | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL,
+        rc.right/2 + 10, 10, rc.right/2 - 20, rc.bottom - 20,
+        hWnd,
+        NULL, (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), NULL);
 }
 
 extern "C" void qtns_setGeometry(QtNPInstance *This, const QRect &rect, const QRect &)
 {
     Q_ASSERT(qobject_cast<QWidget*>(This->qt.object));
 
-    This->qt.widget->setGeometry(QRect(0, 0, rect.width(), rect.height()));
+    This->qt.widget->setGeometry(QRect(0, 0, rect.width()/2, rect.height()));
 }
 
 /*
@@ -198,3 +224,22 @@ extern "C" void qtns_print(QtNPInstance * This, NPPrint *printInfo)
     // #### Nothing yet.
 }
 */
+
+static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (msg == WM_MOUSEACTIVATE) {
+        MY_LOG("WM_MOUSEACTIVATE");
+
+        LRESULT ret = DefWindowProc(hWnd, msg, wParam, lParam);
+        if (lpOldProc){
+           ret = lpOldProc(hWnd, msg, wParam, lParam);
+        }
+
+        return ret;
+    }
+
+    if (lpOldProc) {
+       return lpOldProc(hWnd, msg, wParam, lParam);
+    }
+    return DefWindowProc(hWnd, msg, wParam, lParam);
+}
