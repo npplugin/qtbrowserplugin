@@ -1000,13 +1000,17 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     const QRect clipRect(window->clipRect.left, window->clipRect.top,
                          window->clipRect.right - window->clipRect.left,
                          window->clipRect.bottom - window->clipRect.top);
-    if (window)
+    if (window){
         This->geometry = QRect(window->x, window->y, window->width, window->height);
+    }
 
     // take a shortcut if all that was changed is the geometry
     if (qobject_cast<QWidget*>(This->qt.object) && window && This->window == (QtNPInstance::Widget)window->window) {
         qtns_setGeometry(This, This->geometry, clipRect);
-	return NPERR_NO_ERROR;
+
+        MY_LOG("do nothing");
+
+        return NPERR_NO_ERROR;
     }
 
 	delete This->qt.object;
