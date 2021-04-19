@@ -222,6 +222,15 @@ struct NPByteRange
     NPByteRange* next;
 };
 
+
+// https://wiki.mozilla.org/NPAPI:HttpOnlyCookies
+typedef enum {
+  NPNURLVCookie = 501,
+  NPNURLVProxy
+} NPNURLVariable;
+
+
+
 // Values for mode passed to NPP_New:
 #define NP_EMBED      1
 #define NP_FULL       2
@@ -461,6 +470,17 @@ typedef bool (*NPN_HasPropertyFP)(NPP npp, NPObject *obj, NPIdentifier propertyN
 typedef bool (*NPN_HasMethodFP)(NPP npp, NPObject *obj, NPIdentifier methodName);
 typedef void (*NPN_ReleaseVariantValueFP)(NPVariant *variant);
 typedef void (*NPN_SetExceptionFP)(NPObject *obj, const char *message);
+typedef bool (*NPN_PushPopupsEnabledStateFP)(NPP npp, NPBool enabled);
+typedef bool (*NPN_PopPopupsEnabledStateFP)(NPP npp);
+typedef bool (*NPN_EnumerateFP)(NPP npp, NPObject *obj, NPIdentifier **identifier, uint32 *count);
+typedef void (*NPN_PluginThreadAsyncCallFP)(NPP instance, void (*func)(void *), void *userData);
+typedef bool (*NPN_ConstructFP)(NPP npp, NPObject* obj, const NPVariant *args, uint32 argCount, NPVariant *result);
+typedef NPError (*NPN_GetValueForURLFP)(NPP npp, NPNURLVariable variable, const char *url, char **value, uint32 *len);
+typedef NPError (*NPN_SetValueForURLFP)(NPP npp, NPNURLVariable variable, const char *url, const char *value, uint32 len);
+typedef NPError (*NPN_GetAuthenticationInfoFP)(NPP npp, const char *protocol, const char *host, int32 port, const char *scheme, const char *realm, char **username, uint32 *ulen, char **password, uint32 *plen);
+
+
+
 
 // function declarations
 NPError	NPN_GetURL(NPP instance, const char* url, const char* window);
@@ -503,6 +523,16 @@ bool NPN_HasProperty(NPP npp, NPObject *obj, NPIdentifier propertyName);
 bool NPN_HasMethod(NPP npp, NPObject *obj, NPIdentifier methodName);
 void NPN_ReleaseVariantValue(NPVariant *variant);
 void NPN_SetException(NPObject *obj, const char *message);
+bool NPN_PushPopupsEnabledState(NPP npp, NPBool enabled);
+bool NPN_PopPopupsEnabledState(NPP npp);
+bool NPN_Enumerate(NPP npp, NPObject *obj, NPIdentifier **identifier, uint32 *count);
+void NPN_PluginThreadAsyncCall(NPP instance, void (*func)(void *), void *userData);
+bool NPN_Construct(NPP npp, NPObject* obj, const NPVariant *args, uint32 argCount, NPVariant *result);
+NPError NPN_GetValueForURL(NPP npp, NPNURLVariable variable, const char *url, char **value, uint32 *len);
+NPError NPN_SetValueForURL(NPP npp, NPNURLVariable variable, const char *url, const char *value, uint32 len);
+NPError NPN_GetAuthenticationInfo(NPP npp, const char *protocol, const char *host, int32 port, const char *scheme, const char *realm, char **username, uint32 *ulen, char **password, uint32 *plen);
+
+
 
 // table of function implemented by the browser
 struct NPNetscapeFuncs {
@@ -548,6 +578,15 @@ struct NPNetscapeFuncs {
     FUNCTION_POINTER(NPN_HasMethodFP) hasmethod;
     FUNCTION_POINTER(NPN_ReleaseVariantValueFP) releasevariantvalue;
     FUNCTION_POINTER(NPN_SetExceptionFP) setexception;
+
+    FUNCTION_POINTER(NPN_PushPopupsEnabledStateFP) pushpopupsenabledstate;
+    FUNCTION_POINTER(NPN_PopPopupsEnabledStateFP) poppopupsenabledstate;
+    FUNCTION_POINTER(NPN_EnumerateFP) enumerate;
+    FUNCTION_POINTER(NPN_PluginThreadAsyncCallFP) pluginthreadasynccall;
+    FUNCTION_POINTER(NPN_ConstructFP) construct;
+    FUNCTION_POINTER(NPN_GetValueForURLFP) getvalueforurl;
+    FUNCTION_POINTER(NPN_SetValueForURLFP) setvalueforurl;
+    FUNCTION_POINTER(NPN_GetAuthenticationInfoFP) getauthenticationinfo;
 };
 
 #ifdef Q_WS_X11

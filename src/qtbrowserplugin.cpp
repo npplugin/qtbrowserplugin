@@ -292,6 +292,49 @@ void NPN_SetException(NPObject *obj, const char *message)
     FIND_FUNCTION_POINTER(NPN_SetExceptionFP, qNetscapeFuncs->setexception)(obj, message);
 }
 
+bool NPN_PushPopupsEnabledState(NPP npp, NPBool enabled)
+{
+    NPN_Prolog(pushpopupsenabledstate);
+    return FIND_FUNCTION_POINTER(NPN_PushPopupsEnabledStateFP, qNetscapeFuncs->pushpopupsenabledstate)(npp, enabled);
+}
+
+bool NPN_PopPopupsEnabledState(NPP npp)
+{
+    NPN_Prolog(poppopupsenabledstate);
+    return FIND_FUNCTION_POINTER(NPN_PopPopupsEnabledStateFP, qNetscapeFuncs->poppopupsenabledstate)(npp);
+}
+
+bool NPN_Enumerate(NPP npp, NPObject *obj, NPIdentifier **identifier, uint32 *count)
+{
+    NPN_Prolog(enumerate);
+    return FIND_FUNCTION_POINTER(NPN_EnumerateFP, qNetscapeFuncs->enumerate)(npp, obj, identifier, count);
+}
+
+void NPN_PluginThreadAsyncCall(NPP instance, void (*func)(void *), void *userData)
+{
+    NPN_Prolog(pluginthreadasynccall);
+    return FIND_FUNCTION_POINTER(NPN_PluginThreadAsyncCallFP, qNetscapeFuncs->pluginthreadasynccall)(instance, func, userData);
+}
+
+bool NPN_Construct(NPP npp, NPObject* obj, const NPVariant *args, uint32 argCount, NPVariant *result)
+{
+    NPN_Prolog(construct);
+    return FIND_FUNCTION_POINTER(NPN_ConstructFP, qNetscapeFuncs->construct)(npp, obj, args, argCount, result);
+}
+
+NPError NPN_GetValueForURL(NPP npp, NPNURLVariable variable, const char *url, char **value, uint32 *len)
+{
+    NPN_Prolog(getvalueforurl);
+    return FIND_FUNCTION_POINTER(NPN_GetValueForURLFP, qNetscapeFuncs->getvalueforurl)(npp, variable, url, value, len);
+}
+
+NPError NPN_SetValueForURL(NPP npp, NPNURLVariable variable, const char *url, const char *value, uint32 len)
+{
+    NPN_Prolog(setvalueforurl);
+    return FIND_FUNCTION_POINTER(NPN_SetValueForURLFP, qNetscapeFuncs->setvalueforurl)(npp, variable,url, value, len);
+}
+
+
 // Scripting implementation (JavaScript calling QObject)
 #define NPClass_Prolog \
     if (!npobj->_class) return false; \
