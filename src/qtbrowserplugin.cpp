@@ -345,22 +345,22 @@ NPError NPN_SetValueForURL(NPP npp, NPNURLVariable variable, const char *url, co
     QObject *qobject = This->qt.object \
 
 
-static NPObject *NPAllocate(NPP npp, NPClass *aClass)
-{
-    Q_UNUSED(npp);
-    Q_UNUSED(aClass);
+//static NPObject *NPAllocate(NPP npp, NPClass *aClass)
+//{
+//    Q_UNUSED(npp);
+//    Q_UNUSED(aClass);
 
-    Q_ASSERT(false);
-    return 0;
-}
+//    Q_ASSERT(false);
+//    return 0;
+//}
 
-static void NPDeallocate(NPObject *npobj)
-{
-    Q_UNUSED(npobj);
+//static void NPDeallocate(NPObject *npobj)
+//{
+//    Q_UNUSED(npobj);
 
-    Q_ASSERT(false);
-    return;
-}
+//    Q_ASSERT(false);
+//    return;
+//}
 
 static void NPInvalidate(NPObject *npobj)
 {
@@ -1130,7 +1130,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     qtns_setGeometry(This, This->geometry, clipRect);
     This->qt.widget->show();
 
-#ifdef DIRTY_TRICK_FOCUS
+#ifdef DIRTY_TRICK_X11FOCUS
     QApplication::postEvent(This->qt.widget, new QEvent(MY_TRICK_FOCUS_EVENT));
 #endif
 

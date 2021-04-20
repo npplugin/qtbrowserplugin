@@ -87,7 +87,7 @@ public:
         return m_text;
     }
 
-#ifdef DIRTY_TRICK_FOCUS
+#ifdef DIRTY_TRICK_X11FOCUS
     bool event( QEvent *evt ) {
         if (evt->type() == QEvent::WindowActivate) {
             MY_LOG("%d, WindowActivate", evt->type());
@@ -139,7 +139,7 @@ protected:
     }
 
 private:
-#ifdef DIRTY_TRICK_FOCUS
+#ifdef DIRTY_TRICK_X11FOCUS
     void trickX11Focus() {
         MY_LOG("trickX11Focus");
 

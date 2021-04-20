@@ -205,12 +205,12 @@ MY_LOG_FUNC(ss.str().c_str());} \
 while(0)
 
 
-// a dirty trick of focus
-#ifndef Q_WS_WIN
-#define DIRTY_TRICK_FOCUS
+// dirty trick of focus
+#ifdef Q_WS_X11
+#define DIRTY_TRICK_X11FOCUS
 #endif
 
-#ifdef DIRTY_TRICK_FOCUS
+#ifdef DIRTY_TRICK_X11FOCUS
 const QEvent::Type MY_TRICK_FOCUS_EVENT = static_cast<QEvent::Type>(QEvent::User + 1);
 #endif
 
