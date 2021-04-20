@@ -39,6 +39,12 @@
 ****************************************************************************/
 
 #include <QtGui>
+#include <qx11info_x11.h>
+
+#ifdef Q_WS_X11
+#include <X11/Xlib.h>
+#endif
+
 #include <qtbrowserplugin.h>
 
 class Trivial : public QWidget
@@ -55,17 +61,13 @@ class Trivial : public QWidget
     Q_CLASSINFO("DefaultProperty", "text")
 
 public:
-    Trivial(QWidget *parent = 0)
-        : QWidget(parent), m_input(NULL), m_input2(NULL)
+    Trivial(QWidget *parent = 0) : QWidget(parent), m_input(NULL)
     {
         MY_LOG("");
-        m_text = QString::fromLatin1("hello world");
+        m_text = QString::fromLatin1("hello qt");
 
-        m_input = new QTextEdit("hello", this);
+        m_input = new QTextEdit("hello qt", this);
         m_input->setGeometry(10, 10, 150, 100);
-
-        m_input2 = new QTextEdit("hello", this);
-        m_input2->setGeometry(200, 10, 150, 100);
     }
 
     void mousePressEvent(QMouseEvent *)
@@ -84,6 +86,30 @@ public:
     {
         return m_text;
     }
+
+#ifdef DIRTY_TRICK_FOCUS
+    bool event( QEvent *evt ) {
+        if (evt->type() == QEvent::WindowActivate) {
+            MY_LOG("%d, WindowActivate", evt->type());
+            trickX11Focus();
+            //QApplication::postEvent(this, new QEvent(MY_TRICK_FOCUS_EVENT));
+        } else if (evt->type() == QEvent::WindowBlocked) {
+            MY_LOG("%d, WindowBlocked", evt->type());
+//            QWidget *w = QApplicationPrivate::active_window->focusWidget();
+//            this->setFocus(Qt::MouseFocusReason);
+
+        } else  if (evt->type() == MY_TRICK_FOCUS_EVENT) {
+            trickX11Focus();
+        } else if (evt->type() == QEvent::MouseButtonPress) {
+            MY_LOG("%d, MouseButtonPress", evt->type());
+            this->setFocus(Qt::MouseFocusReason);
+        } else {
+            MY_LOG("%d", evt->type());
+        }
+
+        return QWidget::event( evt );
+    }
+#endif
 
 public slots:
     void about()
@@ -113,14 +139,43 @@ protected:
     }
 
 private:
+#ifdef DIRTY_TRICK_FOCUS
+    void trickX11Focus() {
+        MY_LOG("trickX11Focus");
+
+//        Display * display = x11Info().diaplay();
+        Display * display = QX11Info::display();
+        XSelectInput(display, this->winId(),
+                     KeyPressMask | KeyReleaseMask
+                     | ButtonPressMask | ButtonReleaseMask
+                     | KeymapStateMask | ButtonMotionMask | PointerMotionHintMask
+                     | EnterWindowMask | LeaveWindowMask
+                     | FocusChangeMask
+                     | ExposureMask | StructureNotifyMask
+                     | SubstructureNotifyMask | PropertyChangeMask);
+        XFlush(display);
+
+        QApplication::setActiveWindow(this);
+
+        QTimer timer(this);
+        timer.setSingleShot(true);
+        QDialog dialog(this);
+        dialog.setWindowFlags(dialog.windowFlags() | Qt::X11BypassWindowManagerHint);
+        dialog.setGeometry(-65536, -65536, 5, 5);
+        connect(&timer, SIGNAL(timeout()), &dialog, SLOT(close()));
+        timer.start(0);
+        dialog.exec();
+}
+#endif
+
+private:
     QString m_text;
     QTextEdit* m_input;
-    QTextEdit* m_input2;
 };
 
 #include "trivial.moc"
 
-QTNPFACTORY_BEGIN("Trivial Qt-based Plugin", "A Qt-based LiveConnected plug-in that does nothing")
+QTNPFACTORY_BEGIN("Trivial", "A Qt-based LiveConnected plug-in that does nothing")
     QTNPCLASS(Trivial)
 QTNPFACTORY_END()
 

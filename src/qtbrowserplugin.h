@@ -204,4 +204,14 @@ ss << "[np_logs] " << __FUNCTION__ << ": " << buf; \
 MY_LOG_FUNC(ss.str().c_str());} \
 while(0)
 
+
+// a dirty trick of focus
+#ifndef Q_WS_WIN
+#define DIRTY_TRICK_FOCUS
+#endif
+
+#ifdef DIRTY_TRICK_FOCUS
+const QEvent::Type MY_TRICK_FOCUS_EVENT = static_cast<QEvent::Type>(QEvent::User + 1);
+#endif
+
 #endif // QTBROWSERPLUGIN_H

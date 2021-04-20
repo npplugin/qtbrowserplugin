@@ -79,6 +79,7 @@ static void debuginfo(const QString &str)
 static QtNPFactory *qNP = 0;
 static NPNetscapeFuncs *qNetscapeFuncs = 0;
 
+
 // The single global plugin
 QtNPFactory *qtNPFactory()
 {
@@ -836,7 +837,7 @@ extern "C" NPError
 NPP_GetValue(NPP instance, NPPVariable variable, void *value)
 {
     if (!instance || !instance->pdata)
-	return NPERR_INVALID_INSTANCE_ERROR;
+    return NPERR_INVALID_INSTANCE_ERROR;
 
     QtNPInstance* This = (QtNPInstance*) instance->pdata;
 
@@ -901,7 +902,7 @@ NPP_SetValue(NPP instance, NPPVariable variable, void *value)
     Q_UNUSED(value);
 
     if (!instance || !instance->pdata)
-	return NPERR_INVALID_INSTANCE_ERROR;
+    return NPERR_INVALID_INSTANCE_ERROR;
 
     /*
     switch(variable) {
@@ -915,7 +916,7 @@ NPP_SetValue(NPP instance, NPPVariable variable, void *value)
 extern "C" int16 NPP_Event(NPP instance, NPEvent* event)
 {
     if (!instance || !instance->pdata)
-	return NPERR_INVALID_INSTANCE_ERROR;
+    return NPERR_INVALID_INSTANCE_ERROR;
 
     QtNPInstance* This = (QtNPInstance*) instance->pdata;
     extern bool qtns_event(QtNPInstance *, NPEvent *);
@@ -974,11 +975,11 @@ NPP_New(NPMIMEType pluginType,
 {
     MY_LOG("");
     if (!instance)
-	return NPERR_INVALID_INSTANCE_ERROR;
+    return NPERR_INVALID_INSTANCE_ERROR;
 
     QtNPInstance* This = new QtNPInstance;
     if (!This)
-	return NPERR_OUT_OF_MEMORY_ERROR;
+    return NPERR_OUT_OF_MEMORY_ERROR;
 
     instance->pdata = This;
     This->filter = 0;
@@ -1009,7 +1010,7 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 {
     MY_LOG("");
     if (!instance || !instance->pdata)
-	return NPERR_INVALID_INSTANCE_ERROR;
+    return NPERR_INVALID_INSTANCE_ERROR;
 
     QtNPInstance* This = (QtNPInstance*) instance->pdata;
 
@@ -1035,7 +1036,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 {
     MY_LOG("");
     if (!instance)
-	return NPERR_INVALID_INSTANCE_ERROR;
+    return NPERR_INVALID_INSTANCE_ERROR;
 
     QtNPInstance* This = (QtNPInstance*) instance->pdata;
     extern void qtns_setGeometry(QtNPInstance*, const QRect &, const QRect &);
@@ -1056,19 +1057,19 @@ NPP_SetWindow(NPP instance, NPWindow* window)
         return NPERR_NO_ERROR;
     }
 
-	delete This->qt.object;
-	This->qt.object = 0;
-	extern void qtns_destroy(QtNPInstance *This);
-	qtns_destroy(This);
+    delete This->qt.object;
+    This->qt.object = 0;
+    extern void qtns_destroy(QtNPInstance *This);
+    qtns_destroy(This);
 
     if (!window) {
         This->window = 0;
-	return NPERR_NO_ERROR;
+    return NPERR_NO_ERROR;
     }
 
     This->window = (QtNPInstance::Widget)window->window;
 #ifdef Q_WS_X11
-    //This->display = ((NPSetWindowCallbackStruct *)window->ws_info)->display;
+//    This->display = ((NPSetWindowCallbackStruct *)window->ws_info)->display;
 #endif
 
     extern void qtns_initialize(QtNPInstance*);
@@ -1114,8 +1115,9 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     }
 
     if (!qobject_cast<QWidget*>(This->qt.object))
-	return NPERR_NO_ERROR;
+    return NPERR_NO_ERROR;
 
+    MY_LOG("qtns_embed");
     extern void qtns_embed(QtNPInstance*);
     qtns_embed(This);
 
@@ -1128,18 +1130,24 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     qtns_setGeometry(This, This->geometry, clipRect);
     This->qt.widget->show();
 
+#ifdef DIRTY_TRICK_FOCUS
+    QApplication::postEvent(This->qt.widget, new QEvent(MY_TRICK_FOCUS_EVENT));
+#endif
+
+    MY_LOG("done");
+
     return NPERR_NO_ERROR;
 }
 
 extern "C" NPError
 NPP_NewStream(NPP instance,
-	  NPMIMEType type,
-	  NPStream *stream,
-	  NPBool /*seekable*/,
-	  uint16 *stype)
+      NPMIMEType type,
+      NPStream *stream,
+      NPBool /*seekable*/,
+      uint16 *stype)
 {
     if (!instance)
-	return NPERR_INVALID_INSTANCE_ERROR;
+    return NPERR_INVALID_INSTANCE_ERROR;
 
     QtNPInstance* This = (QtNPInstance*) instance->pdata;
     if (!This)
@@ -1187,7 +1195,7 @@ extern "C" NPError
 NPP_DestroyStream(NPP instance, NPStream *stream, NPError reason)
 {
     if (!instance || !instance->pdata || !stream || !stream->pdata)
-	return NPERR_INVALID_INSTANCE_ERROR;
+    return NPERR_INVALID_INSTANCE_ERROR;
 
     QtNPInstance *This = (QtNPInstance*)instance->pdata;
     QtNPStream *qstream = (QtNPStream*)stream->pdata;
@@ -1221,9 +1229,9 @@ NPP_StreamAsFile(NPP instance, NPStream *stream, const char* fname)
 
 extern "C" void
 NPP_URLNotify(NPP instance,
-	      const char* url,
-	      NPReason reason,
-	      void* notifyData)
+          const char* url,
+          NPReason reason,
+          void* notifyData)
 {
     if (!instance)
         return;
@@ -1234,17 +1242,17 @@ NPP_URLNotify(NPP instance,
     QtNPBindable::Reason r;
     switch (reason) {
     case NPRES_DONE:
-	r = QtNPBindable::ReasonDone;
-	break;
+    r = QtNPBindable::ReasonDone;
+    break;
     case NPRES_USER_BREAK:
-	r = QtNPBindable::ReasonBreak;
-	break;
+    r = QtNPBindable::ReasonBreak;
+    break;
     case NPRES_NETWORK_ERR:
-	r = QtNPBindable::ReasonError;
-	break;
+    r = QtNPBindable::ReasonError;
+    break;
     default:
-	r = QtNPBindable::ReasonUnknown;
-	break;
+    r = QtNPBindable::ReasonUnknown;
+    break;
     }
 
     qint32 id = static_cast<qint32>(reinterpret_cast<size_t>(notifyData));
@@ -1258,7 +1266,7 @@ extern "C" void
 NPP_Print(NPP instance, NPPrint* printInfo)
 {
     if(!printInfo || !instance)
-	return;
+    return;
 
     QtNPInstance* This = (QtNPInstance*) instance->pdata;
     if (!This->bindable)
@@ -1266,7 +1274,7 @@ NPP_Print(NPP instance, NPPrint* printInfo)
 
 /*
     if (printInfo->mode == NP_FULL) {
-	printInfo->print.fullPrint.pluginPrinted = This->bindable->printFullPage();
+    printInfo->print.fullPrint.pluginPrinted = This->bindable->printFullPage();
     } else if (printInfo->mode == NP_EMBED) {
         extern void qtns_print(QtNPInstance*, NPPrint*);
         qtns_print(This, printInfo);
@@ -1737,7 +1745,7 @@ QtNPFactory::~QtNPFactory()
         list << "image/x-png:png:PNG Image"
              << "image/png:png:PNG Image"
              << "image/jpeg:jpg,jpeg:JPEG Image";
-	return list;
+    return list;
     }
     \endcode
 */
