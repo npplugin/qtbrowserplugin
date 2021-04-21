@@ -1,6 +1,7 @@
 TARGET      	= trivial
 
-SOURCES		= trivial.cpp
+SOURCES		= trivial.cpp \
+    finddialog.cpp
 
 win32 {
    RC_FILE		= trivial.rc
@@ -16,3 +17,6 @@ win32 {
 }
 
 include(../../src/qtbrowserplugin.pri)
+
+HEADERS += \
+    finddialog.h
